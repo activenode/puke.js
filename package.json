@@ -1,6 +1,6 @@
 {
   "name": "puke.js",
-  "version": "0.0.7-alpha",
+  "version": "0.0.8-alpha",
   "description": "A zod-based, use-form alternative",
   "type": "module",
   "files": [
@@ -14,10 +14,14 @@
       "import": "./dist/index.es.js",
       "require": "./dist/index.cjs.js",
       "types": "./dist/index.d.ts"
+    },
+    "./zod-globals": {
+      "types": "./dist/zod-globals.d.ts"
     }
   },
   "scripts": {
-    "build": "vite build"
+    "build": "vite build",
+    "postbuild": "cp zod-globals.d.ts dist"
   },
   "keywords": [],
   "author": "",

@@ -21,6 +21,6 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["./index.tsx", "./types/*.ts"],
+  "include": ["./index.tsx", "./zod/*.ts", "zod-globals.d.ts"],
   "exclude": ["node_modules", "dist"]
 }

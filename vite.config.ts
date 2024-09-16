@@ -5,7 +5,11 @@ import { resolve } from "path";
 import { libInjectCss } from "vite-plugin-lib-inject-css";
 
 export default defineConfig({
-  plugins: [react(), dts({ include: ["index.tsx", "types"] }), libInjectCss()],
+  plugins: [
+    react(),
+    dts({ include: ["index.tsx", "global.d.ts"], insertTypesEntry: true }),
+    libInjectCss(),
+  ],
   build: {
     lib: {
       entry: resolve(__dirname, "index.tsx"),

@@ -1,21 +1,5 @@
-import type { ZodTypeDef } from "zod";
+import "../zod-globals.d.ts";
 import { ZodType } from "zod";
-
-declare module "zod" {
-  interface ZodType<
-    Output = any,
-    Def extends ZodTypeDef = ZodTypeDef,
-    Input = Output
-  > {
-    label(): string | undefined;
-    label(label: string): this;
-    placeholder(): string | undefined;
-    placeholder(placeholder: string): this;
-    metadata(): any;
-    metadata(data: any): this;
-    ___puke: true;
-  }
-}
 
 if (!ZodType.prototype.___puke) {
   ZodType.prototype.___puke = true;
