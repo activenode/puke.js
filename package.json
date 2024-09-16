@@ -1,10 +1,37 @@
 {
   "name": "puke.js",
-  "version": "0.0.3-alpha",
-  "description": "",
-  "main": "index.tsx",
+  "version": "0.0.4-alpha",
+  "description": "A zod-based, use-form alternative",
+  "source": "./index.tsx",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/cjs/index.js",
+      "import": "./dist/esm/index.js",
+      "types": "./dist/types/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "targets": {
+    "cjs": {
+      "outputFormat": "commonjs",
+      "distDir": "dist/cjs"
+    },
+    "esm": {
+      "outputFormat": "esmodule",
+      "distDir": "dist/esm"
+    }
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rm -rf dist && npm run build:cjs && npm run build:esm && npm run build:types",
+    "build:cjs": "parcel build ./index.tsx --target cjs",
+    "build:esm": "parcel build ./index.tsx --target esm",
+    "build:types": "tsc --emitDeclarationOnly --declaration --declarationDir dist/types",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [],
   "author": "",

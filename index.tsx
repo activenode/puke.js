@@ -1,9 +1,10 @@
-import React, { useEffect, useId, useMemo, useState } from "react";
-
+import React, { useEffect, useId } from "react";
 import z from "zod";
 import "./zod/extend";
 
-type ValidDerivedInputTypes =
+export const zod = z;
+
+export type ValidDerivedInputTypes =
   | "checkbox"
   | "number"
   | "text"
@@ -14,66 +15,94 @@ type ValidDerivedInputTypes =
   | "date"
   | "url";
 
-export const zod = z;
+export type FormState<T extends z.ZodRawShape> = {
+  fieldValues: Record<keyof z.infer<z.ZodObject<T>>, string>;
+  errors: Partial<
+    Record<
+      keyof z.infer<z.ZodObject<T>>,
+      {
+        message: string;
+      }
+    >
+  >;
+  loading: boolean;
+};
 
-export const puke = <T extends z.ZodRawShape>(fields: z.ZodObject<T>) => {
-  // Infer the type from the Zod schema
-  type FormData = z.infer<typeof fields>;
-  type FormFieldNames = keyof FormData;
-  type FormDataRecord = Record<FormFieldNames, string>;
-  type FormState = {
-    fieldValues: Record<FormFieldNames, string>;
-    errors: Partial<
-      Record<
-        FormFieldNames,
-        {
-          message: string;
-        }
-      >
-    >;
-    loading: boolean;
+export type FieldRendererParams<T extends z.ZodRawShape> = {
+  field_name: keyof z.infer<z.ZodObject<T>>;
+  field: z.ZodType<any>;
+  onChange: (
+    event: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => void;
+  inputType: ValidDerivedInputTypes;
+  errors: FormState<T>["errors"][keyof z.infer<z.ZodObject<T>>];
+  errorProps?: {
+    id: string;
+    children: string | undefined;
+    role: "alert";
+    "aria-hidden": "true" | "false";
   };
+};
 
-  type FieldRendererParams = {
-    field_name: FormFieldNames;
-    field: z.ZodType<any>;
+export type FieldRenderer<T extends z.ZodRawShape> = (
+  register: () => {
+    id: string;
+    name: string;
+    value: string;
     onChange: (
       event: React.ChangeEvent<
         HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
       >
     ) => void;
-    inputType: ValidDerivedInputTypes;
-    errors: FormState["errors"][FormFieldNames];
-    errorProps?: {
-      id: string;
-      children: string | undefined;
-      role: "alert";
-      "aria-hidden": "true" | "false";
-    };
-  };
-  type FieldRenderer = (
-    register: () => {
-      id: string;
-      name: string;
-      value: string;
-      onChange: (
-        event: React.ChangeEvent<
-          HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-        >
-      ) => void;
-      type: ValidDerivedInputTypes;
-    },
-    params: FieldRendererParams
-  ) => React.ReactNode;
+    type: ValidDerivedInputTypes;
+  },
+  params: FieldRendererParams<T>
+) => React.ReactNode;
 
-  let _validatedSubmit: (
-    evt: React.FormEvent<HTMLFormElement>,
-    data: FormDataRecord,
-    unsetLoading: () => void
-  ) => Promise<boolean> = () => Promise.resolve(true);
+export type PukedObjType<T extends z.ZodRawShape> = {
+  withState: (stateSetter: (state: FormState<T>) => void) => PukedObjType<T>;
+  select: (
+    selectDataFn: (
+      fieldNames: Array<keyof z.infer<z.ZodObject<T>>>
+    ) => Promise<Partial<Record<keyof z.infer<z.ZodObject<T>>, any>>>
+  ) => PukedObjType<T>;
+  validatedSubmit: (
+    onSubmit: (
+      evt: React.FormEvent<HTMLFormElement>,
+      data: Record<keyof z.infer<z.ZodObject<T>>, string>,
+      unsetLoading: () => void
+    ) => Promise<boolean>
+  ) => PukedObjType<T>;
+  _state: FormState<T>;
+  plugin: (pluginFn: (obj: PukedObjType<T>) => void) => PukedObjType<T>;
+  getFieldNames: () => ReadonlyArray<keyof z.infer<z.ZodObject<T>>>;
+  dontPreventDefault: () => PukedObjType<T>;
+  fieldRenderer: (renderer: FieldRenderer<T>) => PukedObjType<T>;
+  Form: (props: {
+    children: (params: {
+      renderFields: (
+        fieldNames?: Array<keyof z.infer<z.ZodObject<T>>>
+      ) => React.ReactNode;
+      formId: string;
+      loading: boolean;
+      state: FormState<T>;
+    }) => React.ReactNode;
+  }) => React.ReactNode;
+};
 
-  let _state: FormState = {
-    fieldValues: {} as FormDataRecord,
+export const puke = <T extends z.ZodRawShape>(
+  fields: z.ZodObject<T>
+): PukedObjType<T> => {
+  let _validatedSubmit: Parameters<
+    PukedObjType<T>["validatedSubmit"]
+  >[0] = () => Promise.resolve(true);
+
+  type ZodObjectKeys = keyof z.infer<z.ZodObject<T>>;
+
+  let _state: FormState<T> = {
+    fieldValues: {} as Record<ZodObjectKeys, string>,
     errors: {},
     loading: true,
   };
@@ -81,34 +110,15 @@ export const puke = <T extends z.ZodRawShape>(fields: z.ZodObject<T>) => {
   let _doPreventDefault = true;
 
   let _selectDataFn: (
-    fieldNames: Array<FormFieldNames>
-  ) => Promise<Partial<Record<FormFieldNames, any>>> = async () =>
-    ({} as FormDataRecord);
+    fieldNames: Array<ZodObjectKeys>
+  ) => Promise<Partial<Record<ZodObjectKeys, any>>> = async () =>
+    ({} as Record<ZodObjectKeys, string>);
 
-  let _setState = (state: FormState) => {
+  let _setState = (state: FormState<T>) => {
     _state = state;
   };
 
-  type PukedObjType = {
-    withState: (stateSetter: (state: FormState) => void) => PukedObjType;
-    select: (selectDataFn: typeof _selectDataFn) => PukedObjType;
-    validatedSubmit: (onSubmit: typeof _validatedSubmit) => PukedObjType;
-    _state: FormState;
-    plugin: (pluginFn: (obj: PukedObjType) => void) => PukedObjType;
-    getFieldNames: () => ReadonlyArray<FormFieldNames>;
-    dontPreventDefault: () => PukedObjType;
-    fieldRenderer: (renderer: FieldRenderer) => PukedObjType;
-    Form: (props: {
-      children: (params: {
-        renderFields: (fieldNames?: Array<FormFieldNames>) => React.ReactNode;
-        formId: string;
-        loading: boolean;
-        state: FormState;
-      }) => React.ReactNode;
-    }) => React.ReactNode;
-  };
-
-  const _updateState = (state: FormState) => {
+  const _updateState = (state: FormState<T>) => {
     _state = state;
     _setState(_state);
   };
@@ -137,17 +147,17 @@ export const puke = <T extends z.ZodRawShape>(fields: z.ZodObject<T>) => {
       fieldValues: {
         ..._state.fieldValues,
         [name]: fieldValue,
-      },
+      } as Record<ZodObjectKeys, string>,
     });
   };
 
-  let FieldRendererComp: FieldRenderer = (register, params) => {
+  let FieldRendererComp: FieldRenderer<T> = (register, params) => {
     throw new Error("FieldRendererComp not implemented");
     return <></>;
   };
 
-  const pukedObj: PukedObjType = {
-    withState: function (stateSetter: (state: FormState) => void) {
+  const pukedObj: PukedObjType<T> = {
+    withState: function (stateSetter: (state: FormState<T>) => void) {
       _setState = stateSetter;
       return this;
     },
@@ -174,7 +184,7 @@ export const puke = <T extends z.ZodRawShape>(fields: z.ZodObject<T>) => {
       useEffect(() => {
         _updateIsLoading(true);
 
-        const fieldNames = Object.keys(fields.shape) as Array<FormFieldNames>;
+        const fieldNames = Object.keys(fields.shape) as Array<ZodObjectKeys>;
         _selectDataFn(fieldNames).then((data) => {
           _updateIsLoading(false);
 
@@ -183,7 +193,7 @@ export const puke = <T extends z.ZodRawShape>(fields: z.ZodObject<T>) => {
             fieldValues: {
               ..._state.fieldValues,
               ...data,
-            },
+            } as Record<ZodObjectKeys, string>,
           });
         });
       }, []);
@@ -207,14 +217,14 @@ export const puke = <T extends z.ZodRawShape>(fields: z.ZodObject<T>) => {
                 _updateIsLoading(false);
               });
             } else {
-              const collectedErrors: FormState["errors"] =
+              const collectedErrors: FormState<T>["errors"] =
                 validationResult.error.errors.reduce((acc, errorItem) => {
-                  acc[errorItem.path[0] as FormFieldNames] = {
+                  acc[errorItem.path[0] as ZodObjectKeys] = {
                     message: errorItem.message,
                   };
 
                   return acc;
-                }, {} as FormState["errors"]);
+                }, {} as FormState<T>["errors"]);
 
               _updateState({
                 ..._state,
@@ -232,14 +242,14 @@ export const puke = <T extends z.ZodRawShape>(fields: z.ZodObject<T>) => {
 
               if (Array.isArray(fieldNames)) {
                 fieldsToRender = fieldsToRender.filter(([key]) =>
-                  fieldNames.includes(key as FormFieldNames)
+                  fieldNames.includes(key as ZodObjectKeys)
                 );
               }
 
               return (
                 <>
                   {fieldsToRender.map(([key, field]) => {
-                    let inputType: ValidDerivedInputTypes = "text"; // Default input type
+                    let inputType: ValidDerivedInputTypes = "text";
                     let options: string[] = [];
                     const isRequired = field.isOptional() ? false : true;
 
@@ -270,7 +280,7 @@ export const puke = <T extends z.ZodRawShape>(fields: z.ZodObject<T>) => {
                       }
                     }
 
-                    const hasError = !!_state.errors[key];
+                    const hasError = !!_state.errors[key as ZodObjectKeys];
                     const errElemId = `${formId}-${key}-error`;
 
                     const register = () => {
@@ -280,14 +290,14 @@ export const puke = <T extends z.ZodRawShape>(fields: z.ZodObject<T>) => {
                         value:
                           inputType === "checkbox"
                             ? "on"
-                            : _state.fieldValues[key] ?? "",
+                            : _state.fieldValues[key as ZodObjectKeys] ?? "",
                         onChange: handleChange,
                         type: inputType,
                         checked:
                           inputType === "checkbox"
-                            ? _state.fieldValues[key] ?? false
+                            ? _state.fieldValues[key as ZodObjectKeys] ?? false
                             : undefined,
-                        placeholder: field.placeholder() ?? "",
+                        placeholder: (field as any).placeholder?.() ?? "",
                         "aria-required": isRequired ? "true" : undefined,
                         "aria-invalid": hasError ? "true" : undefined,
                         "aria-describedby": hasError ? errElemId : undefined,
@@ -297,14 +307,15 @@ export const puke = <T extends z.ZodRawShape>(fields: z.ZodObject<T>) => {
                     return (
                       <React.Fragment key={key}>
                         {FieldRendererComp(register, {
-                          field_name: key as FormFieldNames,
+                          field_name: key as ZodObjectKeys,
                           field,
                           onChange: handleChange,
                           inputType,
-                          errors: _state.errors[key],
+                          errors: _state.errors[key as ZodObjectKeys],
                           errorProps: {
                             id: errElemId,
-                            children: _state.errors[key]?.message,
+                            children:
+                              _state.errors[key as ZodObjectKeys]?.message,
                             role: "alert",
                             "aria-hidden": hasError ? "false" : "true",
                           },
@@ -324,7 +335,9 @@ export const puke = <T extends z.ZodRawShape>(fields: z.ZodObject<T>) => {
       return this;
     },
     getFieldNames: function () {
-      return Object.keys(fields.shape) as ReadonlyArray<FormFieldNames>;
+      return Object.keys(fields.shape) as ReadonlyArray<
+        keyof z.infer<z.ZodObject<T>>
+      >;
     },
   };
 
