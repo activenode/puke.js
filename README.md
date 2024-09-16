@@ -127,11 +127,6 @@ Also this allows to change the input values from the outside if you need to.
 
 `npm i puke.js`
 
-## Use the slightly extended zod
-
-This library uses a minimally extended zod. Zod itself has not been changed. You hence need to import zod from this library using `import { z } from 'puke.js';` (we do `export const z = zod`).
-To avoid having two zod imports, make sure to always use this zod.
-
 ## make your app aware of the extended Zod
 
 To net get typing / linting errors, create a `global.d.ts` file and add it to the `include` section of your `tsconfig.json` .
@@ -139,7 +134,7 @@ To net get typing / linting errors, create a `global.d.ts` file and add it to th
 ### In the `global.d.ts`
 
 ```
-/// <reference types="puke.js/types/zod-extension" />
+/// <reference path="./node_modules/puke.js/dist/zod-globals.d.ts" />
 ```
 
 ### tsconfig.json
