@@ -4,6 +4,8 @@
 | :---------------------------------------------------------------------------------- |
 | This is an early alpha version. It (probably) works but is bound to change any time |
 
+Help contributing: https://github.com/activenode/puke.js
+
 ```tsx
 "use client";
 
