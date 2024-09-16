@@ -42,6 +42,7 @@ export type FieldRendererParams<T extends z.ZodRawShape> = {
     role: "alert";
     "aria-hidden": "true" | "false";
   };
+  options?: string[];
 };
 
 export type FieldRenderer<T extends z.ZodRawShape> = (
@@ -317,6 +318,7 @@ export const puke = <T extends z.ZodRawShape>(
                             role: "alert",
                             "aria-hidden": hasError ? "false" : "true",
                           },
+                          options,
                         })}
                       </React.Fragment>
                     );
