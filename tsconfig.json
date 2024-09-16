@@ -1,17 +1,25 @@
 {
   "compilerOptions": {
     "target": "ES2023",
-    "module": "esnext",
-    "lib": ["dom", "esnext"],
-    "jsx": "react",
+    "module": "ESNext",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
+    "jsx": "react-jsx",
     "declaration": true,
     "declarationDir": "dist/types",
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "dist",
+    "rootDir": ".",
     "strict": true,
     "moduleResolution": "node",
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "outDir": "dist"
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true
   },
   "include": ["./index.tsx", "./types/*.ts"],
   "exclude": ["node_modules", "dist"]

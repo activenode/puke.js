@@ -2,8 +2,6 @@ import React, { useEffect, useId } from "react";
 import z from "zod";
 import "./zod/extend";
 
-export const zod = z;
-
 export type ValidDerivedInputTypes =
   | "checkbox"
   | "number"
