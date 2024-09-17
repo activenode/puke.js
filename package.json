@@ -1,6 +1,6 @@
 {
   "name": "puke.js",
-  "version": "0.1.0-alpha",
+  "version": "0.1.1-alpha",
   "description": "A zod-based, use-form alternative",
   "type": "module",
   "files": [
@@ -20,6 +20,7 @@
     }
   },
   "scripts": {
+    "prepublish": "npm run build",
     "build": "vite build",
     "postbuild": "cp zod-globals.d.ts dist"
   },
