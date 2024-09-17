@@ -15,7 +15,15 @@ export type ValidDerivedInputTypes =
   | "url";
 
 export type FormState<T extends z.ZodRawShape> = {
-  fieldValues: Record<keyof z.infer<z.ZodObject<T>>, string>;
+  fieldValues: {
+    [K in keyof z.infer<z.ZodObject<T>>]: z.infer<
+      z.ZodObject<T>
+    >[K] extends z.ZodBoolean
+      ? boolean
+      : z.infer<z.ZodObject<T>>[K] extends z.ZodNumber
+      ? number
+      : string;
+  };
   errors: Partial<
     Record<
       keyof z.infer<z.ZodObject<T>>,
@@ -102,7 +110,7 @@ export const puke = <T extends z.ZodRawShape>(
   type ZodObjectKeys = keyof z.infer<z.ZodObject<T>>;
 
   let _state: FormState<T> = {
-    fieldValues: {} as Record<ZodObjectKeys, string>,
+    fieldValues: {} as FormState<T>["fieldValues"],
     errors: {},
     loading: true,
   };
@@ -147,7 +155,7 @@ export const puke = <T extends z.ZodRawShape>(
       fieldValues: {
         ..._state.fieldValues,
         [name]: fieldValue,
-      } as Record<ZodObjectKeys, string>,
+      } as FormState<T>["fieldValues"],
     });
   };
 
@@ -193,7 +201,7 @@ export const puke = <T extends z.ZodRawShape>(
             fieldValues: {
               ..._state.fieldValues,
               ...data,
-            } as Record<ZodObjectKeys, string>,
+            } as FormState<T>["fieldValues"],
           });
         });
       }, []);
