@@ -58,7 +58,11 @@ export type FieldRenderer<T extends z.ZodRawShape> = (
   register: () => {
     id: string;
     name: string;
-    value: string;
+    value: T extends z.ZodBoolean
+      ? boolean
+      : T extends z.ZodNumber
+      ? number
+      : string;
     onChange: (
       event: React.ChangeEvent<
         HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -79,7 +83,7 @@ export type PukedObjType<T extends z.ZodRawShape> = {
   validatedSubmit: (
     onSubmit: (
       evt: React.FormEvent<HTMLFormElement>,
-      data: Record<keyof z.infer<z.ZodObject<T>>, string>,
+      data: FormState<T>["fieldValues"],
       unsetLoading: () => void
     ) => Promise<boolean>
   ) => PukedObjType<T>;
@@ -295,10 +299,7 @@ export const puke = <T extends z.ZodRawShape>(
                       return {
                         id: `${formId}-${key}`,
                         name: key,
-                        value:
-                          inputType === "checkbox"
-                            ? "on"
-                            : _state.fieldValues[key as ZodObjectKeys] ?? "",
+                        value: _state.fieldValues[key as ZodObjectKeys],
                         onChange: handleChange,
                         type: inputType,
                         checked:
