@@ -16,11 +16,9 @@ export type ValidDerivedInputTypes =
 
 export type FormState<T extends z.ZodRawShape> = {
   fieldValues: {
-    [K in keyof z.infer<z.ZodObject<T>>]: z.infer<
-      z.ZodObject<T>
-    >[K] extends z.ZodBoolean
+    [K in keyof T]: T[K] extends z.ZodBoolean
       ? boolean
-      : z.infer<z.ZodObject<T>>[K] extends z.ZodNumber
+      : T[K] extends z.ZodNumber
       ? number
       : string;
   };
@@ -306,7 +304,7 @@ export const puke = <T extends z.ZodRawShape>(
                           inputType === "checkbox"
                             ? _state.fieldValues[key as ZodObjectKeys] ?? false
                             : undefined,
-                        placeholder: (field as any).placeholder?.() ?? "",
+                        placeholder: field.placeholder?.() ?? "",
                         "aria-required": isRequired ? "true" : undefined,
                         "aria-invalid": hasError ? "true" : undefined,
                         "aria-describedby": hasError ? errElemId : undefined,
