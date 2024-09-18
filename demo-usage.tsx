@@ -7,13 +7,17 @@ export function DemoUsage() {
     puke(
       z.object({
         is_live: z.boolean().label("Is live"),
-        date: z.date().label("Date"),
+        date: z.date().label("Date").placeholder("just a date"),
       })
-    ).validatedSubmit(async (evt, data, unsetLoading) => {
-      const b: boolean = data.is_live;
-      const d: Date = data.date;
+    )
+      .fieldRenderer((register, params) => {
+        return <input {...register()} />;
+      })
+      .validatedSubmit(async (evt, data, unsetLoading) => {
+        const b: boolean = data.is_live;
+        const d: Date = data.date;
 
-      return true;
-    });
+        return true;
+      });
   }, []);
 }

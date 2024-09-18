@@ -4,6 +4,15 @@ import { ZodType } from "zod";
 if (!ZodType.prototype.___puke) {
   ZodType.prototype.___puke = true;
 
+  ZodType.prototype.hide = function (this: ZodType) {
+    (this as any)._def.hidden = true;
+    return this;
+  };
+
+  ZodType.prototype.isHidden = function (this: ZodType) {
+    return (this as any)._def.hidden === true;
+  };
+
   ZodType.prototype.label = function (this: ZodType, label?: string) {
     if (label === undefined) {
       // If no label is provided, return the current label

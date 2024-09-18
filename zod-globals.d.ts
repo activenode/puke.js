@@ -12,6 +12,8 @@ declare module "zod" {
     placeholder(placeholder: string): this;
     metadata(): any;
     metadata(data: any): this;
+    hide(): this;
+    isHidden(): boolean;
     ___puke: true;
   }
 }
