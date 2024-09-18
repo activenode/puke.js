@@ -12,8 +12,8 @@ export type ValidDerivedInputTypes =
   | "select"
   | "textarea"
   | "date"
-  | "url"
-  | "hidden";
+  | "hidden"
+  | "url";
 
 export type FormState<T extends z.ZodRawShape> = {
   fieldValues: {
@@ -21,6 +21,8 @@ export type FormState<T extends z.ZodRawShape> = {
       ? boolean
       : T[K] extends z.ZodNumber
       ? number
+      : T[K] extends z.ZodDate
+      ? Date
       : string;
   };
   errors: Partial<
@@ -64,11 +66,6 @@ export type FieldRenderer<T extends z.ZodRawShape> = (
       >
     ) => void;
     type: ValidDerivedInputTypes;
-    checked?: boolean;
-    placeholder?: string;
-    "aria-required"?: string;
-    "aria-invalid"?: string;
-    "aria-describedby"?: string;
   },
   params: FieldRendererParams<T>
 ) => React.ReactNode;
@@ -152,6 +149,8 @@ export const puke = <T extends z.ZodRawShape>(
       fieldValue = (event.target as HTMLInputElement).checked;
     } else if (type === "number") {
       fieldValue = parseFloat(value);
+    } else if (type === "date") {
+      fieldValue = new Date(value);
     } else {
       fieldValue = value;
     }
@@ -268,12 +267,12 @@ export const puke = <T extends z.ZodRawShape>(
                     const isRequired = field.isOptional() ? false : true;
                     const isHidden = field.isHidden();
 
-                    if (isHidden) {
-                      inputType = "hidden";
-                    } else if (field instanceof z.ZodBoolean) {
+                    if (field instanceof z.ZodBoolean) {
                       inputType = "checkbox";
                     } else if (field instanceof z.ZodNumber) {
                       inputType = "number";
+                    } else if (field instanceof z.ZodDate) {
+                      inputType = "date";
                     } else if (field instanceof z.ZodEnum) {
                       inputType = "select";
                       options = field._def.values;
@@ -295,39 +294,29 @@ export const puke = <T extends z.ZodRawShape>(
                       }
                     }
 
+                    if (isHidden) {
+                      inputType = "hidden";
+                    }
+
                     const hasError = !!_state.errors[key as ZodObjectKeys];
                     const errElemId = `${formId}-${key}-error`;
 
                     const register = () => {
-                      const baseProps = {
+                      return {
                         id: `${formId}-${key}`,
                         name: key,
+                        value: _state.fieldValues[key as ZodObjectKeys],
                         onChange: handleChange,
                         type: inputType,
-                        placeholder: (field as any).placeholder?.() ?? "",
+                        checked:
+                          inputType === "checkbox"
+                            ? _state.fieldValues[key as ZodObjectKeys] ?? false
+                            : undefined,
+                        placeholder: field.placeholder?.() ?? "",
                         "aria-required": isRequired ? "true" : undefined,
                         "aria-invalid": hasError ? "true" : undefined,
                         "aria-describedby": hasError ? errElemId : undefined,
                       };
-
-                      if (isHidden) {
-                        return {
-                          ...baseProps,
-                          value: JSON.stringify(
-                            _state.fieldValues[key as ZodObjectKeys]
-                          ),
-                        };
-                      } else {
-                        return {
-                          ...baseProps,
-                          value: _state.fieldValues[key as ZodObjectKeys],
-                          checked:
-                            inputType === "checkbox"
-                              ? _state.fieldValues[key as ZodObjectKeys] ??
-                                false
-                              : undefined,
-                        };
-                      }
                     };
 
                     return (
@@ -346,7 +335,6 @@ export const puke = <T extends z.ZodRawShape>(
                             "aria-hidden": hasError ? "false" : "true",
                           },
                           options,
-                          isHidden,
                         })}
                       </React.Fragment>
                     );
