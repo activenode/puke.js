@@ -20,6 +20,8 @@ export type FormState<T extends z.ZodRawShape> = {
       ? boolean
       : T[K] extends z.ZodNumber
       ? number
+      : T[K] extends z.ZodDate
+      ? Date
       : string;
   };
   errors: Partial<
@@ -56,11 +58,7 @@ export type FieldRenderer<T extends z.ZodRawShape> = (
   register: () => {
     id: string;
     name: string;
-    value: T extends z.ZodBoolean
-      ? boolean
-      : T extends z.ZodNumber
-      ? number
-      : string;
+    value: any;
     onChange: (
       event: React.ChangeEvent<
         HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
@@ -122,7 +120,7 @@ export const puke = <T extends z.ZodRawShape>(
   let _selectDataFn: (
     fieldNames: Array<ZodObjectKeys>
   ) => Promise<Partial<Record<ZodObjectKeys, any>>> = async () =>
-    ({} as Record<ZodObjectKeys, string>);
+    ({} as Record<ZodObjectKeys, any>);
 
   let _setState = (state: FormState<T>) => {
     _state = state;
@@ -144,10 +142,14 @@ export const puke = <T extends z.ZodRawShape>(
     >
   ) => {
     const { name, value, type } = event.target;
-    let fieldValue: string | boolean;
+    let fieldValue: any;
 
     if (type === "checkbox") {
       fieldValue = (event.target as HTMLInputElement).checked;
+    } else if (type === "number") {
+      fieldValue = parseFloat(value);
+    } else if (type === "date") {
+      fieldValue = new Date(value);
     } else {
       fieldValue = value;
     }
