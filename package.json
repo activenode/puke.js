@@ -1,6 +1,6 @@
 {
   "name": "puke.js",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "A zod-based, use-form alternative",
   "type": "module",
   "files": [

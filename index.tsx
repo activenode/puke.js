@@ -310,7 +310,7 @@ export const puke = <T extends z.ZodRawShape>(
                     const hasError = !!_state.errors[key as ZodObjectKeys];
                     const errElemId = `${formId}-${key}-error`;
 
-                    const register = () => {
+                    const register: Parameters<FieldRenderer<T>>[0] = () => {
                       return {
                         id: `${formId}-${key}`,
                         name: key,
@@ -319,7 +319,11 @@ export const puke = <T extends z.ZodRawShape>(
                         type: inputType,
                         checked:
                           inputType === "checkbox"
-                            ? _state.fieldValues[key as ZodObjectKeys] ?? false
+                            ? Boolean(
+                                _state.fieldValues[
+                                  key as ZodObjectKeys
+                                ] as boolean
+                              ) ?? false
                             : undefined,
                         placeholder: field.placeholder?.() ?? "",
                         "aria-required": isRequired ? "true" : undefined,
