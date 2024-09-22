@@ -7,13 +7,17 @@ import { libInjectCss } from "vite-plugin-lib-inject-css";
 export default defineConfig({
   plugins: [
     react(),
-    dts({ include: ["index.tsx", "global.d.ts"], insertTypesEntry: true }),
+    // dts({ include: ["index.tsx", "global.d.ts"], insertTypesEntry: true }),
+    dts({
+      include: ["index.tsx", "global.d.ts", "zod/extend.ts"],
+      insertTypesEntry: true,
+    }),
     libInjectCss(),
   ],
   build: {
     lib: {
       entry: resolve(__dirname, "index.tsx"),
-      name: "YourLibraryName",
+      name: "puke.js",
       formats: ["es", "cjs"],
       fileName: (format) => `index.${format}.js`,
     },

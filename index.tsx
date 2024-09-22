@@ -3,7 +3,7 @@ import z from "zod";
 
 import "./zod/extend";
 
-export * from "./zod/extend";
+export { extendZod } from "./zod/extend";
 
 export type ValidDerivedInputTypes =
   | "checkbox"
