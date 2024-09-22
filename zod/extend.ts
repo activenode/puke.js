@@ -1,20 +1,21 @@
 import "../zod-globals.d.ts";
-import { ZodType } from "zod";
+import zod from "zod";
+import type { ZodType } from "zod";
 
-export function extendZod() {
-  if (!ZodType.prototype.___puke) {
-    ZodType.prototype.___puke = true;
+export function extendZod(z: typeof zod) {
+  if (!z.ZodType.prototype.___puke) {
+    z.ZodType.prototype.___puke = true;
 
-    ZodType.prototype.hide = function (this: ZodType) {
+    z.ZodType.prototype.hide = function (this: ZodType) {
       (this as any)._def.hidden = true;
       return this;
     };
 
-    ZodType.prototype.isHidden = function (this: ZodType) {
+    z.ZodType.prototype.isHidden = function (this: ZodType) {
       return (this as any)._def.hidden === true;
     };
 
-    ZodType.prototype.label = function (this: ZodType, label?: string) {
+    z.ZodType.prototype.label = function (this: ZodType, label?: string) {
       if (label === undefined) {
         // If no label is provided, return the current label
         return (this as any)._def.label;
@@ -25,7 +26,7 @@ export function extendZod() {
       }
     };
 
-    ZodType.prototype.placeholder = function (
+    z.ZodType.prototype.placeholder = function (
       this: ZodType,
       placeholder?: string
     ) {
@@ -39,7 +40,7 @@ export function extendZod() {
       }
     };
 
-    ZodType.prototype.metadata = function (this: ZodType, data?: any) {
+    z.ZodType.prototype.metadata = function (this: ZodType, data?: any) {
       if (data === undefined) {
         return (this as any)._def.metadata;
       } else {
