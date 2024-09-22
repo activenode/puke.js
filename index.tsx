@@ -69,7 +69,8 @@ export type FieldRenderer<T extends z.ZodRawShape> = (
     ) => void;
     type: ValidDerivedInputTypes;
   },
-  params: FieldRendererParams<T>
+  params: FieldRendererParams<T>,
+  state: FormState<T>
 ) => React.ReactNode;
 
 export type PukedObjType<T extends z.ZodRawShape> = {
@@ -323,21 +324,25 @@ export const puke = <T extends z.ZodRawShape>(
 
                     return (
                       <React.Fragment key={key}>
-                        {FieldRendererComp(register, {
-                          field_name: key as ZodObjectKeys,
-                          field,
-                          onChange: handleChange,
-                          inputType,
-                          errors: _state.errors[key as ZodObjectKeys],
-                          errorProps: {
-                            id: errElemId,
-                            children:
-                              _state.errors[key as ZodObjectKeys]?.message,
-                            role: "alert",
-                            "aria-hidden": hasError ? "false" : "true",
+                        {FieldRendererComp(
+                          register,
+                          {
+                            field_name: key as ZodObjectKeys,
+                            field,
+                            onChange: handleChange,
+                            inputType,
+                            errors: _state.errors[key as ZodObjectKeys],
+                            errorProps: {
+                              id: errElemId,
+                              children:
+                                _state.errors[key as ZodObjectKeys]?.message,
+                              role: "alert",
+                              "aria-hidden": hasError ? "false" : "true",
+                            },
+                            options,
                           },
-                          options,
-                        })}
+                          _state
+                        )}
                       </React.Fragment>
                     );
                   })}
