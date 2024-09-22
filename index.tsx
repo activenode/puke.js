@@ -40,6 +40,7 @@ export type FormState<T extends z.ZodRawShape> = {
 
 export type FieldRendererParams<T extends z.ZodRawShape> = {
   field_name: keyof z.infer<z.ZodObject<T>>;
+  isRequired: boolean;
   field: z.ZodType<any>;
   onChange: (
     event: React.ChangeEvent<
@@ -340,6 +341,7 @@ export const puke = <T extends z.ZodRawShape>(
                         {FieldRendererComp(
                           register,
                           {
+                            isRequired,
                             field_name: key as ZodObjectKeys,
                             field,
                             onChange: handleChange,
