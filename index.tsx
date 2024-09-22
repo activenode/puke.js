@@ -319,6 +319,7 @@ export const puke = <T extends z.ZodRawShape>(
                         "aria-required": isRequired ? "true" : undefined,
                         "aria-invalid": hasError ? "true" : undefined,
                         "aria-describedby": hasError ? errElemId : undefined,
+                        disabled: _state.loading,
                       };
                     };
 
