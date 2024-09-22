@@ -42,11 +42,7 @@ export type FieldRendererParams<T extends z.ZodRawShape> = {
   field_name: keyof z.infer<z.ZodObject<T>>;
   isRequired: boolean;
   field: z.ZodType<any>;
-  onChange: (
-    event: React.ChangeEvent<
-      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-    >
-  ) => void;
+
   inputType: ValidDerivedInputTypes;
   errors: FormState<T>["errors"][keyof z.infer<z.ZodObject<T>>];
   errorProps?: {
@@ -58,24 +54,26 @@ export type FieldRendererParams<T extends z.ZodRawShape> = {
   options?: string[];
 };
 
+export type FieldInputProps = {
+  id: string;
+  name: string;
+  value: any;
+  onChange: (
+    event: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => void;
+  type: ValidDerivedInputTypes;
+  checked?: boolean;
+  placeholder?: string;
+  "aria-required"?: "true";
+  "aria-invalid"?: "true";
+  "aria-describedby"?: string;
+  disabled?: boolean;
+};
+
 export type FieldRenderer<T extends z.ZodRawShape> = (
-  register: () => {
-    id: string;
-    name: string;
-    value: any;
-    onChange: (
-      event: React.ChangeEvent<
-        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-      >
-    ) => void;
-    type: ValidDerivedInputTypes;
-    checked?: boolean;
-    placeholder?: string;
-    "aria-required"?: "true";
-    "aria-invalid"?: "true";
-    "aria-describedby"?: string;
-    disabled?: boolean;
-  },
+  register: () => FieldInputProps,
   params: FieldRendererParams<T>,
   state: FormState<T>
 ) => React.ReactNode;
@@ -344,7 +342,6 @@ export const puke = <T extends z.ZodRawShape>(
                             isRequired,
                             field_name: key as ZodObjectKeys,
                             field,
-                            onChange: handleChange,
                             inputType,
                             errors: _state.errors[key as ZodObjectKeys],
                             errorProps: {
