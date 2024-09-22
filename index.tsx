@@ -263,9 +263,11 @@ export const puke = <T extends z.ZodRawShape>(
               let fieldsToRender = Object.entries(fields.shape);
 
               if (Array.isArray(fieldNames)) {
-                fieldsToRender = fieldsToRender.filter(([key]) =>
-                  fieldNames.includes(key as ZodObjectKeys)
-                );
+                fieldsToRender = fieldNames
+                  .map((fieldName) =>
+                    fieldsToRender.find(([key]) => key === fieldName)
+                  )
+                  .filter((field) => !!field);
               }
 
               return (
