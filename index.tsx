@@ -68,6 +68,12 @@ export type FieldRenderer<T extends z.ZodRawShape> = (
       >
     ) => void;
     type: ValidDerivedInputTypes;
+    checked?: boolean;
+    placeholder?: string;
+    "aria-required"?: "true";
+    "aria-invalid"?: "true";
+    "aria-describedby"?: string;
+    disabled?: boolean;
   },
   params: FieldRendererParams<T>,
   state: FormState<T>
