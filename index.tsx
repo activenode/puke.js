@@ -222,6 +222,7 @@ export const puke = <T extends z.ZodRawShape>(
       return (
         <form
           id={formId}
+          autoComplete="off"
           onSubmit={(e) => {
             _doPreventDefault && e.preventDefault();
             const validationResult = fields.safeParse(_state.fieldValues);
@@ -304,6 +305,15 @@ export const puke = <T extends z.ZodRawShape>(
                       }
                     }
 
+                    // console.log("@field", key, field, {
+                    //   inputType,
+                    //   instanceOfZodString: field instanceof z.ZodString,
+                    //   instanceOfZodNumber: field instanceof z.ZodNumber,
+                    //   instanceOfZodDate: field instanceof z.ZodDate,
+                    //   instanceOfZodEnum: field instanceof z.ZodEnum,
+                    //   instanceOfZodBoolean: field instanceof z.ZodBoolean,
+                    // });
+
                     if (isHidden) {
                       inputType = "hidden";
                     }
@@ -351,7 +361,7 @@ export const puke = <T extends z.ZodRawShape>(
                         "aria-required": isRequired ? "true" : undefined,
                         "aria-invalid": hasError ? "true" : undefined,
                         "aria-describedby": hasError ? errElemId : undefined,
-                        disabled: _state.loading,
+                        disabled: _state.loading ?? undefined,
                       };
                     };
 
