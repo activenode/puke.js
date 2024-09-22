@@ -311,11 +311,32 @@ export const puke = <T extends z.ZodRawShape>(
                     const hasError = !!_state.errors[key as ZodObjectKeys];
                     const errElemId = `${formId}-${key}-error`;
 
+                    // console.log("@@", {
+                    //   id: `${formId}-${key}`,
+                    //   name: key,
+                    //   value: _state.fieldValues[key as ZodObjectKeys] ?? "",
+                    //   onChange: handleChange,
+                    //   type: inputType,
+                    //   checked:
+                    //     inputType === "checkbox"
+                    //       ? Boolean(
+                    //           _state.fieldValues[
+                    //             key as ZodObjectKeys
+                    //           ] as boolean
+                    //         ) ?? false
+                    //       : undefined,
+                    //   placeholder: field.placeholder?.() ?? "",
+                    //   "aria-required": isRequired ? "true" : undefined,
+                    //   "aria-invalid": hasError ? "true" : undefined,
+                    //   "aria-describedby": hasError ? errElemId : undefined,
+                    //   disabled: _state.loading,
+                    // });
+
                     const register: Parameters<FieldRenderer<T>>[0] = () => {
                       return {
                         id: `${formId}-${key}`,
                         name: key,
-                        value: _state.fieldValues[key as ZodObjectKeys],
+                        value: _state.fieldValues[key as ZodObjectKeys] ?? "",
                         onChange: handleChange,
                         type: inputType,
                         checked:
